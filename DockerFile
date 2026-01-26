@@ -1,0 +1,43 @@
+# -----------------------------
+# Stage 1: Build Java backend
+# -----------------------------
+FROM maven:3.9.6-eclipse-temurin-17 AS backend-build
+
+WORKDIR /build
+
+# Copy backend source
+COPY Backend/pom.xml .
+RUN mvn dependency:go-offline
+
+COPY Backend/src ./src
+RUN mvn clean package -DskipTests
+
+# -----------------------------
+# Stage 2: Runtime
+# -----------------------------
+FROM php:8.2-apache
+
+# Install Java runtime
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jre \
+    && rm -rf /var/lib/apt/lists/*
+
+# Enable Apache rewrite (common for PHP apps)
+RUN a2enmod rewrite
+
+# Set working directory for Apache
+WORKDIR /var/www/html
+
+# Copy frontend files (HTML, JS, PHP)
+COPY Frontend/ /var/www/html/
+
+# Copy Java JAR from build stage
+COPY --from=backend-build /build/target/*.jar /opt/app/backend.jar
+
+# Expose ports
+# 80  -> Apache (PHP + frontend)
+# 8080 -> Java backend
+EXPOSE 80 8080
+
+# Start both Apache and Java backend
+CMD bash -c "java -jar /opt/app/backend.jar & apache2-foreground"
