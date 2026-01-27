@@ -1,56 +1,47 @@
 <?php
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-
-error_reporting(E_ALL);
-ini_set("display_errors", 0); // IMPORTANT: prevents HTML errors
-
 session_start();
 
-// Handle preflight
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit;
+$role     = $_POST['role'] ?? null;
+$email    = $_POST['email'] ?? null;
+$password = $_POST['password'] ?? null;
+
+if (!$role || !$email || !$password) {
+    die("Missing credentials");
 }
 
-// Read JSON input
-$data = json_decode(file_get_contents("php://input"), true);
+// Java API endpoint
+$javaUrl = "http://localhost:8082/authenticate"; // your Java server
 
-if (!$data) {
-    echo json_encode(["error" => "Invalid input"]);
-    exit;
-}
-
-// Validate required fields
-if (!isset($data["role"], $data["email"], $data["password"])) {
-    echo json_encode(["error" => "Missing credentials"]);
-    exit;
-}
-
-// Call Java auth service (YOU must implement this)
-$response = callJavaAuthService([
-    "email" => $data["email"],
-    "password" => $data["password"]
+// Build JSON payload
+$payload = json_encode([
+    "email" => $email,
+    "password" => $password,
+    "role" => $role
 ]);
 
-if (!$response || !isset($response["userId"])) {
-    http_response_code(401);
-    echo json_encode(["error" => "Invalid credentials"]);
-    exit;
+// Initialize cURL
+$ch = curl_init($javaUrl);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+// Decode Java response
+$result = json_decode($response, true);
+
+if (!$result || !isset($result['userId'])) {
+    die("Invalid credentials");
 }
 
-// Store session data
-$_SESSION["user_id"]    = $response["userId"];
-$_SESSION["role"]       = $response["role"];
-$_SESSION["first_name"] = $response["first_name"];
-$_SESSION["last_name"]  = $response["last_name"];
+// Store session
+$_SESSION['user_id']    = $result['userId'];
+$_SESSION['role']       = $result['role'];
+$_SESSION['first_name'] = $result['first_name'];
+$_SESSION['last_name']  = $result['last_name'];
 
-// Respond to frontend
-echo json_encode([
-    "status" => "success",
-    "redirect" => "/dashboard/" . $_SESSION["role"]
-]);
-
+// Redirect to dashboard
+header("Location: ../Frontend/dashboard.php");
 exit;
