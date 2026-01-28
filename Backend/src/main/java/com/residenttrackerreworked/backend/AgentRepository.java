@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByEmailAndRole(String email, String role);
+public interface AgentRepository extends JpaRepository<Agent, Long> {
+
+    Optional<Agent> findByEmail(String email);
 }

@@ -30,7 +30,21 @@ $response = curl_exec($ch);
 curl_close($ch);
 
 // Decode Java response
-$result = json_decode($response, true);
+$result = file_get_contents(
+  "http://localhost:8082/api/auth/login",
+  false,
+  stream_context_create([
+    "http" => [
+      "method" => "POST",
+      "header" => "Content-Type: application/json",
+      "content" => json_encode([
+        "email" => $email,
+        "password" => $password
+      ])
+    ]
+  ])
+);
+
 
 if (!$result || !isset($result['userId'])) {
     die("Invalid credentials");

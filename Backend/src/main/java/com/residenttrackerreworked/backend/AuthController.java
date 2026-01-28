@@ -19,7 +19,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        boolean ok = authService.authenticate(
+                request.getEmail(),
+                request.getPassword()
+        );
+
+        if (!ok) {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
+
+        return ResponseEntity.ok("Login successful");
     }
 }
