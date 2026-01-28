@@ -1,3 +1,5 @@
+package com.residenttrackerreworked.backend;
+
 import org.springframework.data.annotation.Id;
 
 import jakarta.persistence.Column;
@@ -23,6 +25,4 @@ public class User {
 
     @Column(name = "last_name")
     private String lastName;
-
-    // getters & setters
 }

@@ -1,3 +1,5 @@
+package com.residenttrackerreworked.backend;
+
 public class LoginResponse {
     private String status;
     private Long userId;
