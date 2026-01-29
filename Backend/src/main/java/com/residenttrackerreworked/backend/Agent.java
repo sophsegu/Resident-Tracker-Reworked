@@ -21,13 +21,14 @@ public class Agent {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(unique = true)
     private String email;
 
+    @Column
     private String hash;
 
-    private String salt;
 
-    // ----- Getters -----
+    // ===== GETTERS =====
 
     public Long getIdentifier() {
         return identifier;
@@ -49,7 +50,27 @@ public class Agent {
         return hash;
     }
 
-    public String getSalt() {
-        return salt;
+
+    // ===== SETTERS =====
+
+    public void setIdentifier(Long identifier) {
+        this.identifier = identifier;
     }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
 }

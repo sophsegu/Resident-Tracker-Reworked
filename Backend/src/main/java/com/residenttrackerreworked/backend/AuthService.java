@@ -30,8 +30,7 @@ public class AuthService {
 
         String computedHash =
                 PasswordUtil.hash(
-                        request.getPassword(),
-                        agent.getSalt()
+                        request.getPassword()
                 );
 
         if (!computedHash.equals(agent.getHash())) {
@@ -52,7 +51,7 @@ public class AuthService {
         Agent agent = agentRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String computedHash = PasswordUtil.hash(rawPassword, agent.getSalt());
+        String computedHash = PasswordUtil.hash(rawPassword);
 
         return computedHash.equals(agent.getHash());
     }
