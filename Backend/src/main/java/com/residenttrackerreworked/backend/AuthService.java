@@ -2,12 +2,17 @@ package com.residenttrackerreworked.backend;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
     private final AgentRepository agentRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public AuthService(AgentRepository agentRepository) {
         this.agentRepository = agentRepository;
@@ -28,16 +33,11 @@ public class AuthService {
 
         Agent agent = agentOpt.get();
 
-        String computedHash =
-                PasswordUtil.hash(
-                        request.getPassword()
-                );
-
-        if (!computedHash.equals(agent.getHash())) {
+        if (!passwordEncoder.matches(request.getPassword(), agent.getHash())) {
             response.setStatus("error");
             response.setMessage("Invalid email or password");
             return response;
-        }
+    }
 
         response.setStatus("success");
         response.setAgentId(agent.getIdentifier());
@@ -51,8 +51,6 @@ public class AuthService {
         Agent agent = agentRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String computedHash = PasswordUtil.hash(rawPassword);
-
-        return computedHash.equals(agent.getHash());
+        return passwordEncoder.matches(rawPassword, agent.getHash());
     }
 }

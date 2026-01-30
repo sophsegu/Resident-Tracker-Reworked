@@ -28,6 +28,8 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
 $response = curl_exec($ch);
 curl_close($ch);
+echo "<script>console.log('PHP says: $email');</script>";
+echo "<script>console.log('PHP says: $password');</script>";
 
 // Decode Java response
 $result = file_get_contents(

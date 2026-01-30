@@ -27,20 +27,20 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ---------- LOGIN ----------
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        System.out.println("Login attempt for email: " + request.getEmail());
+        System.out.println("Password provided: " + request.getPassword());
+        // Call your existing AuthService.login method
+        LoginResponse response = authService.login(request);
 
-        boolean ok = authService.authenticate(
-                request.getEmail(),
-                request.getPassword()
-        );
-
-        if (!ok) {
-            return ResponseEntity.status(401).body("Invalid credentials");
+        // If login failed
+        if ("error".equals(response.getStatus())) {
+            return ResponseEntity.status(401).body(response);
         }
 
-        return ResponseEntity.ok("Login successful");
+        // If login succeeded, return JSON with user info
+        return ResponseEntity.ok(response);
     }
 
     // ---------- DEV ONLY ----------
