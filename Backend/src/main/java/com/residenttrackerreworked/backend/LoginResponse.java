@@ -7,6 +7,7 @@ public class LoginResponse {
     private Long agentId;
     private String firstName;
     private String lastName;
+    private String role;
 
     public String getStatus() {
         return status;
@@ -46,5 +47,12 @@ public class LoginResponse {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public void setRole(String Role) {
+        this.role = Role;
+    }
+    public String getRole() {
+        return role;
     }
 }

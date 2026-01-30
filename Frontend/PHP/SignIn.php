@@ -9,17 +9,14 @@ if (!$role || !$email || !$password) {
     die("Missing credentials");
 }
 
-// Java API endpoint
-$javaUrl = "http://localhost:8082/authenticate"; // your Java server
+$javaUrl = "http://localhost:8082/api/auth/login"; // use the correct Java endpoint
 
-// Build JSON payload
 $payload = json_encode([
     "email" => $email,
     "password" => $password,
-    "role" => $role
+    "role" => $role // include role if required
 ]);
 
-// Initialize cURL
 $ch = curl_init($javaUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
@@ -27,37 +24,29 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 
 $response = curl_exec($ch);
+
+var_dump($response);
+
+if ($response === false) {
+    die("cURL error: " . curl_error($ch));
+}
+
 curl_close($ch);
-echo "<script>console.log('PHP says: $email');</script>";
-echo "<script>console.log('PHP says: $password');</script>";
 
-// Decode Java response
-$result = file_get_contents(
-  "http://localhost:8082/api/auth/login",
-  false,
-  stream_context_create([
-    "http" => [
-      "method" => "POST",
-      "header" => "Content-Type: application/json",
-      "content" => json_encode([
-        "email" => $email,
-        "password" => $password
-      ])
-    ]
-  ])
-);
+// Decode response
+$result = json_decode($response, true);
 
-
-if (!$result || !isset($result['userId'])) {
+if (!$result || !isset($result['agentId'])) {
     die("Invalid credentials");
 }
 
 // Store session
-$_SESSION['user_id']    = $result['userId'];
+$_SESSION['user_id']    = $result['agentId'];
 $_SESSION['role']       = $result['role'];
-$_SESSION['first_name'] = $result['first_name'];
-$_SESSION['last_name']  = $result['last_name'];
+$_SESSION['first_name'] = $result['firstName'];
+$_SESSION['last_name']  = $result['lastName'];
 
-// Redirect to dashboard
-header("Location: ../Frontend/dashboard.php");
+// Redirect
+header("Location: ../dashboard.php");
 exit;
+?>

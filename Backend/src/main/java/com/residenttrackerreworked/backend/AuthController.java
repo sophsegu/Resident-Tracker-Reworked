@@ -29,18 +29,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        System.out.println("Login attempt for email: " + request.getEmail());
-        System.out.println("Password provided: " + request.getPassword());
         // Call your existing AuthService.login method
         LoginResponse response = authService.login(request);
 
-        System.out.println("Login response status: " + response.getStatus());
         // If login failed
         if ("error".equals(response.getStatus())) {
             return ResponseEntity.status(401).body(response);
         }
 
         // If login succeeded, return JSON with user info
+        System.out.println("Response: "+ResponseEntity.ok(response));
         return ResponseEntity.ok(response);
     }
 
@@ -58,7 +56,6 @@ public class AuthController {
         agent.setEmail("soph.segu@gmail.com");
 
         agent.setHash(passwordEncoder.encode("1234"));
-        System.out.println("Encoded password: " + agent.getHash());
 
         agentRepository.save(agent);
 
