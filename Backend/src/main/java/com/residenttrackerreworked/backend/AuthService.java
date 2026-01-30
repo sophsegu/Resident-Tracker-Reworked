@@ -33,11 +33,14 @@ public class AuthService {
 
         Agent agent = agentOpt.get();
 
-        if (!passwordEncoder.matches(request.getPassword(), agent.getHash())) {
+        System.out.println(authenticate(request.getEmail(), request.getPassword()));
+
+        if (!authenticate(request.getEmail(), request.getPassword())) {
             response.setStatus("error");
             response.setMessage("Invalid email or password");
             return response;
     }
+    System.out.println("HERE");
 
         response.setStatus("success");
         response.setAgentId(agent.getIdentifier());
@@ -50,6 +53,10 @@ public class AuthService {
     public boolean authenticate(String email, String rawPassword) {
         Agent agent = agentRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        System.out.println("Raw password: " + rawPassword);
+        System.out.println("Stored hash: " + agent.getHash());
+        System.out.println("Password matches: " + passwordEncoder.matches(rawPassword, agent.getHash()));
 
         return passwordEncoder.matches(rawPassword, agent.getHash());
     }

@@ -34,6 +34,7 @@ public class AuthController {
         // Call your existing AuthService.login method
         LoginResponse response = authService.login(request);
 
+        System.out.println("Login response status: " + response.getStatus());
         // If login failed
         if ("error".equals(response.getStatus())) {
             return ResponseEntity.status(401).body(response);
@@ -57,6 +58,7 @@ public class AuthController {
         agent.setEmail("soph.segu@gmail.com");
 
         agent.setHash(passwordEncoder.encode("1234"));
+        System.out.println("Encoded password: " + agent.getHash());
 
         agentRepository.save(agent);
 
